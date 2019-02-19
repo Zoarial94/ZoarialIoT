@@ -1,22 +1,25 @@
 #include "Configuration/Configuration.hpp"
-#include <iostream>
-#include <string>
-#include <locale.h>
 #include <config4cpp/Configuration.h>
-#include <clocale>
+#include <string>
 #include <fstream>
 
-using namespace ZoairalIoT::Configuration;
+using namespace ZoarialIoT;
 
-Configuration() {
+Configuration::Configuration() {
 
 	cfg = config4cpp::Configuration::create();
 	
 }
 
+Configuration::~Configuration() {
+	
+	cfg->destroy();	
+
+}
+
 bool fileExists(std::string& fileName) {
 
-	ifstream f(fileName.c_str());
+	std::ifstream f(fileName.c_str());
 	return f.good();
 
 }

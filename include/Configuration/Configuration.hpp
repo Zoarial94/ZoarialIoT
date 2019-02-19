@@ -2,22 +2,27 @@
 #ifndef CONFIGURATION_HPP
 #define CONFIGURATION_HPP
 
-#include "ZoarialIoTServer/ZoarialIoTServer.hpp"
 #include <iostream>
 #include <config4cpp/Configuration.h>
 #include <clocale>
 #include <string>
 
-class ZoarialIoT::Configuration {
+namespace ZoarialIoT {
+	class Configuration {
 
-	pirvate:
-		config4cpp::Configuration * cfg; 
-		bool fileExists(std::string& fileName);
+		private:
+			//Members
+			config4cpp::Configuration * cfg; 
+			
+			//Functions
+			bool fileExists(std::string& fileName);
 
-	public: 
-		Configuration();
-		~Configuration();
+		public: 
+			//Functions
+			Configuration();
+			~Configuration();
 
-}
+	}; //Configuration
+} //ZoarialIoT
 
 #endif //CONFIGURATION_HPP

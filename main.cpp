@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include "ZoarialIoT.h"
+#include "ZoarialIoTServer/ZoarialIoTServer.hpp"
 
 int main(int argc, char const *argv[]) 
 { 
@@ -11,7 +11,10 @@ int main(int argc, char const *argv[])
 		//daemonize
 	}
 
-	ZoarialIoTServer server();
+
+	std::cout << "Creating Server From main()" << std::endl;
+	ZoarialIoT::ZoarialIoTServer server();
+	std::cout << "Server Created" << std::endl;
 
 
 

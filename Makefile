@@ -15,9 +15,9 @@ SRCEXT := cpp
 INCEXT := hpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-LIB := -lpthread -ldl -lstdc++ sqlite3/sqlite3.c
-LIBDIR := ~/Documents/Libraries 
-CXXFLAGS := -Wall  
+LIB := -lpthread -ldl -lstdc++ -ltins -lconfig4cpp
+LIBDIR := -L~/Documents/Libraries/ 
+CXXFLAGS := -Wall
 INC := -I include
 
 #Testing Compiling Files and Arguments
@@ -30,13 +30,14 @@ EXAMOBJS := $(OBJECTS) $(BUILDDIR)/example.o
 #Compile Target
 $(TARGET): $(MAINOBJS)
 	@echo " Linking... $(OBJECTS)"
-	$(CXX) $^ -o $(TARGET) $(LIB) $(LIBDIR)
+	$(CXX)  $^ -o $(TARGET) $(LIB) $(LIBDIR) $(CXXFLAGS)
 
 #Include dependencies which are created
 -include $(OBJECTS:.o=.d)
 
 #Create object files
 $(BUILDDIR)/%.o: %.$(SRCEXT)
+$(BUILDDIR)/%.o: %.$(SRCEXT) $(BUILDDIR)/%.d
 #Make build directory
 	@mkdir -p $(BUILDDIR)
 #Compile object
@@ -51,6 +52,7 @@ $(BUILDDIR)/%.o: %.$(SRCEXT)
 	@rm -f $(BUILDDIR)/$*.d.tmp
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) $(BUILDDIR)/%.d
 #Make build directory
 	@mkdir -p $(BUILDDIR)
 #Compile object
@@ -65,6 +67,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@rm -f $(BUILDDIR)/$*.d.tmp
 
 $(BUILDDIR)/%.o: test/%.$(SRCEXT)
+$(BUILDDIR)/%.o: test/%.$(SRCEXT) $(BUILDDIR)/%.d
 #Make build directory
 	@mkdir -p $(BUILDDIR)
 #Compile object

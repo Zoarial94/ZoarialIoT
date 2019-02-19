@@ -5,23 +5,28 @@
 
 #include "Configuration/Configuration.hpp"
 #include "Network/Network.hpp"
+#include <string>
 
-class ZoarialIoTServer {
+namespace ZoarialIoT {
 
-	private:
-		//Members
-		Configuration  _config;
-		Server         _server;
+	class ZoarialIoTServer {
 
-		//Functions
-		initConfiguration();
-	
-	public:
+		private:
+			//Members
+			Configuration  _config;
+			Server         _server;
 
-		//Functions
-		ZoarialIoTServer();	
-		~ZoarialIoTServer();
+			//Functions
+			bool initConfiguration();
 
-} //ZoarialIoTServer
+		public:
 
+			//Functions
+			ZoarialIoTServer();	
+			~ZoarialIoTServer();
+
+			bool setConfigFile(std::string&);
+
+	}; //ZoarialIoTServer
+} //ZoarialIoT
 #endif //ZOARIALIOTSERVER_HPP
