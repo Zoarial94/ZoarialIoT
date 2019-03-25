@@ -26,7 +26,7 @@ INC := -I include
 TESTSOURCES := $(shell find $(TESTSRCDIR) -type f -name "*.$(SRCEXT)")
 TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRCEXT)=.o))
 
-MAINOBJS := $(OBJECTS) $(BUILDDIR)/main.o
+MAINOBJS := $(OBJECTS) #$(BUILDDIR)/main.o
 EXAMOBJS := $(OBJECTS) $(BUILDDIR)/example.o
 
 
@@ -37,22 +37,30 @@ $(TARGET): $(MAINOBJS)
 
 #Include dependencies which are created
 #-include $(DEPENDENCIES:)
-#include $(DEPENDENCIES)
+include $(wildcard $(DEPENDENCIES))
 
 #Create object files
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) include/%.hpp 
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 #Make build directory
 	@mkdir -p $(BUILDDIR)
 	@mkdir -p $(DEPDIR)
+#Make Makefiles
+	$(CXX) $(CXXFLAGS) $(INC) -MT $@ -MM -MP $< > $(DEPDIR)/$*.Td
+	@cd $(DEPDIR); \
+	cp $*.Td $*.d; \
+    sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+	-e '/^$$/ d' -e 's/$$/ :/' < $*.Td >> $*.d; \
+	rm -f $*.Td; \
+	cd ../;
 #Compile object
 	$(CXX) $(CXXFLAGS) $(INC) -c -o $@ $<
+#Fancy deleting/copying
+#Handles files that no longer exist
+	@cp -f $(DEPDIR)/$*.d $(DEPDIR)/$*.d.tmp
+	@sed -e 's/.*://' -e 's/\\$$//' < $(DEPDIR)/$*.d.tmp | fmt -1 | \
+	sed -e 's/^ *//' -e 's/$$/:/' >> $(DEPDIR)/$*.d
+	@rm -f $(DEPDIR)/$*.d.tmp
 
-$(BUILDDIR)/%.o: ./%.$(SRCEXT) 
-#Make build directory
-	@mkdir -p $(BUILDDIR)
-	@mkdir -p $(DEPDIR)
-#Compile object
-	$(CXX) $(CXXFLAGS) $(INC) -c -o $@ $<
 
 #Clean
 clean:
@@ -68,6 +76,6 @@ Example: $(EXAMOBJS)
 
 
 #Prevents failure if dependency does not exist
-#$(DEPDIR)/%.d: ;
-#.PRECIOUS: $(DEPDIR)/%.d
+$(DEPDIR)/%.d: ;
+.PRECIOUS: $(DEPDIR)/%.d
 

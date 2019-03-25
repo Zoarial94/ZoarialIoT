@@ -5,22 +5,27 @@
 using namespace ZoarialIoT;
 
 //Constructor
-ZoarialIoTServer::ZoarialIoTServer() {
+ZoarialIoTServer::ZoarialIoTServer() :
+_configFile("/etc/ZoarialIoT/config.cfg")
+{
 
 	std::cout << "Constructing Server" << std::endl;
-	initConfiguration();
 
 }
 
-bool ZoarialIoTServer::initConfiguration() {
+bool ZoarialIoTServer::initServerConfiguration() {
+	bool status = false;
 
 	std::cout << "Initializing Configuration" << std::endl;
-	return false;
+	status = setConfigFile(_configFile);
+	return status;
 
 }
 
-bool setConfigFile(std::string& file) {
-	
+bool ZoarialIoTServer::setConfigFile(std::string& file) {
+	bool status = false;
+
+	status = _config.setFile(file);
 	return false;
 
 }

@@ -13,13 +13,16 @@ namespace ZoarialIoT {
 	class ZoarialIoTServer {
 
 		private:
+			//Constants n other info
+			std::string _configFile;
+			
 			//Members
 			Configuration  _config;
 			Server         _server;
 			int test;
 
 			//Functions
-			bool initConfiguration();
+			bool initServerConfiguration();
 
 		public:
 

@@ -12,8 +12,9 @@ namespace ZoarialIoT {
 
 		private:
 			//Members
-			config4cpp::Configuration * cfg; 
-			
+			config4cpp::Configuration * _cfg; 
+			std::string _fileName;
+
 			//Functions
 			bool fileExists(std::string& fileName);
 
@@ -21,6 +22,8 @@ namespace ZoarialIoT {
 			//Functions
 			Configuration();
 			~Configuration();
+
+			bool setFile(std::string file);
 
 	}; //Configuration
 } //ZoarialIoT
