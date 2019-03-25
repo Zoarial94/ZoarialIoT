@@ -1,4 +1,4 @@
-#include "ZoarialIoTServer/ZoarialIoTServer.hpp"
+#include "ZoarialIoTServer.hpp"
 #include <iostream>
 
 
@@ -22,5 +22,11 @@ bool ZoarialIoTServer::initConfiguration() {
 bool setConfigFile(std::string& file) {
 	
 	return false;
+
+}
+
+ZoarialIoTServer::~ZoarialIoTServer() {
+
+	std::cout << "Deconstructing Server" << std::endl;
 
 }

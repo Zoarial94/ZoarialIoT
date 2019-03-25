@@ -4,6 +4,7 @@ SRCDIR := src
 BUILDDIR := build
 INCDIR := include
 TARGET := bin/main
+DEPDIR := dep
 
 #Testing Compiling Options
 TESTSRCDIR := test
@@ -15,6 +16,7 @@ SRCEXT := cpp
 INCEXT := hpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+DEPENDENCIES := $(patsubst $(SRCDIR)/%,$(DEPDIR)/%,$(SOURCES:.$(SRCEXT)=.d))
 LIB := -lpthread -ldl -lstdc++ -ltins -lconfig4cpp
 LIBDIR := -L~/Documents/Libraries/ 
 CXXFLAGS := -Wall
@@ -27,65 +29,35 @@ TESTOBJECTS := $(patsubst $(TESTSRCDIR)/%,$(TESTBUILDDIR)/%,$(TESTSOURCES:.$(SRC
 MAINOBJS := $(OBJECTS) $(BUILDDIR)/main.o
 EXAMOBJS := $(OBJECTS) $(BUILDDIR)/example.o
 
+
 #Compile Target
 $(TARGET): $(MAINOBJS)
-	@echo " Linking... $(OBJECTS)"
+	@echo " Linking... $(MAINOBJS)"
 	$(CXX)  $^ -o $(TARGET) $(LIB) $(LIBDIR) $(CXXFLAGS)
 
 #Include dependencies which are created
--include $(OBJECTS:.o=.d)
+#-include $(DEPENDENCIES:)
+#include $(DEPENDENCIES)
 
 #Create object files
-$(BUILDDIR)/%.o: %.$(SRCEXT)
-$(BUILDDIR)/%.o: %.$(SRCEXT) $(BUILDDIR)/%.d
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) include/%.hpp 
 #Make build directory
 	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(DEPDIR)
 #Compile object
 	$(CXX) $(CXXFLAGS) $(INC) -c -o $@ $<
-#Make dependency list/object
-	$(CXX) $(CXXFLAGS) $(INC) -MM $< > $(BUILDDIR)/$*.d
-#Fancy deleting/copying
-#Handles files that no longer exist
-	@cp -f $(BUILDDIR)/$*.d $(BUILDDIR)/$*.d.tmp
-	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR)/$*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR)/$*.d
-	@rm -f $(BUILDDIR)/$*.d.tmp
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT) $(BUILDDIR)/%.d
+$(BUILDDIR)/%.o: ./%.$(SRCEXT) 
 #Make build directory
 	@mkdir -p $(BUILDDIR)
+	@mkdir -p $(DEPDIR)
 #Compile object
 	$(CXX) $(CXXFLAGS) $(INC) -c -o $@ $<
-#Make dependency list/object
-	$(CXX) $(CXXFLAGS) $(INC) -MM $< > $(BUILDDIR)/$*.d
-#Fancy deleting/copying
-#Handles files that no longer exist
-	@cp -f $(BUILDDIR)/$*.d $(BUILDDIR)/$*.d.tmp
-	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR)/$*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR)/$*.d
-	@rm -f $(BUILDDIR)/$*.d.tmp
-
-$(BUILDDIR)/%.o: test/%.$(SRCEXT)
-$(BUILDDIR)/%.o: test/%.$(SRCEXT) $(BUILDDIR)/%.d
-#Make build directory
-	@mkdir -p $(BUILDDIR)
-#Compile object
-	$(CXX) $(CXXFLAGS) $(INC) -c -o $@ $<
-#Make dependency list/object
-	$(CXX) $(CXXFLAGS) $(INC) -MM $< > $(BUILDDIR)/$*.d
-#Fancy deleting/copying
-#Handles files that no longer exist
-	@cp -f $(BUILDDIR)/$*.d $(BUILDDIR)/$*.d.tmp
-	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR)/$*.d.tmp | fmt -1 | \
-	  sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR)/$*.d
-	@rm -f $(BUILDDIR)/$*.d.tmp
-
 
 #Clean
 clean:
 	@echo " Cleaning..."; 
-	$(RM) -r $(BUILDDIR) $(TARGET)
+	$(RM) -r $(BUILDDIR) $(DEPDIR) $(TARGET)
 
 .PHONY: clean
 
@@ -96,6 +68,6 @@ Example: $(EXAMOBJS)
 
 
 #Prevents failure if dependency does not exist
-$(BUILDDIR)/%.d: ;
-.PRECIOUS: $(DEPDIR)/%.d
+#$(DEPDIR)/%.d: ;
+#.PRECIOUS: $(DEPDIR)/%.d
 

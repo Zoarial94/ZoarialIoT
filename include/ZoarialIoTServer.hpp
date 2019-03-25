@@ -3,9 +3,10 @@
 #ifndef ZOARIALIOTSERVER_HPP
 #define ZOARIALIOTSERVER_HPP
 
-#include "Configuration/Configuration.hpp"
-#include "Network/Network.hpp"
+#include "Configuration.hpp"
+#include "Network.hpp"
 #include <string>
+#include <iostream>
 
 namespace ZoarialIoT {
 
@@ -15,6 +16,7 @@ namespace ZoarialIoT {
 			//Members
 			Configuration  _config;
 			Server         _server;
+			int test;
 
 			//Functions
 			bool initConfiguration();

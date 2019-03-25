@@ -1,4 +1,4 @@
-#include "Network/Network.hpp"
+#include "Network.hpp"
 #include <tins/tins.h>
 
 using namespace ZoarialIoT;
