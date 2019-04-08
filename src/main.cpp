@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include "ZoarialIoTServer.hpp"
+#include "ZoarialIoTNode.hpp"
 
 int main(int argc, char const *argv[]) 
 { 
@@ -13,8 +13,14 @@ int main(int argc, char const *argv[])
 
 
 	std::cout << "Creating Server From main()" << std::endl;
-	ZoarialIoT::ZoarialIoTServer server;
-	std::cout << "Server Created" << std::endl;
+	ZoarialIoT::ZoarialIoTNode server;
+	std::cout << "Server Created... Initializing Server Configuration" << std::endl;
+	
+	if(server.initServerConfiguration()) {
+		std::cout << "Server Initialized" << std::endl;
+	} else {
+		std::cerr << "Server Incorrectly Initialized" << std::endl;
+	}
 
 
 

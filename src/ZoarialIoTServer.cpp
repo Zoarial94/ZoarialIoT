@@ -1,36 +1,70 @@
-#include "ZoarialIoTServer.hpp"
-#include <iostream>
+#include "ZoarialIoTNode.hpp"
 
+#include <config4cpp/Configuration.h>
+
+#include <iostream>
+#include <locale.h>
+#include <clocale>
+#include <string>
 
 using namespace ZoarialIoT;
 
 //Constructor
-ZoarialIoTServer::ZoarialIoTServer() :
-_configFile("/etc/ZoarialIoT/config.cfg")
+ZoarialIoTNode::ZoarialIoTNode() :
+	_configFileName("/etc/ZoarialIoT/config.cfg")
 {
 
+	std::setlocale(LC_ALL, "");
 	std::cout << "Constructing Server" << std::endl;
 
+	_cfg = config4cpp::Configuration::create();
 }
 
-bool ZoarialIoTServer::initServerConfiguration() {
-	bool status = false;
+bool ZoarialIoTNode::initServerConfiguration() {
 
-	std::cout << "Initializing Configuration" << std::endl;
-	status = setConfigFile(_configFile);
-	return status;
+	std::cout << "Attempting To Set Config File To: " << _configFileName << std::endl;
+	if(setConfigFile(_configFileName)) {
+		std::cout << "Attempting To Read Config File..." << std::endl;
+		if(openConfigFile()) {
+			std::cout << "Configration File Successfully Opened" << std::endl;
+		} else {
+			if(fileExists(DEFAULT_CONFIG_FILE)) {
+
+				std::cerr << "USING DEFAULT CONFIG FILE..." << std::endl;
+
+				if(openConfigFile(DEFAULT_CONFIG_FILE)) {
+					//return true;
+				}
+
+			} else {
+
+				std::cerr << "NO CORRECT CONFIGURATION FILES" << std::endl;
+				return false;
+			}
+		}
+	} else {
+		std::cerr << "CONFIGURATION FILE COULD NOT BE SET: " << _configFileName << std::endl;
+		
+		if(fileExists(DEFAULT_CONFIG_FILE)) {
+
+			std::cerr << "USING DEFAULT CONFIG FILE..." << std::endl;
+
+			if(openConfigFile(DEFAULT_CONFIG_FILE)) {
+				//return true;
+			}
+
+		} else {
+
+			std::cerr << "NO CORRECT CONFIGURATION FILES" << std::endl;
+			return false;
+		}
+	}
+
+	return readConfigFile();
 
 }
 
-bool ZoarialIoTServer::setConfigFile(std::string& file) {
-	bool status = false;
-
-	status = _config.setFile(file);
-	return false;
-
-}
-
-ZoarialIoTServer::~ZoarialIoTServer() {
+ZoarialIoTNode::~ZoarialIoTNode() {
 
 	std::cout << "Deconstructing Server" << std::endl;
 
