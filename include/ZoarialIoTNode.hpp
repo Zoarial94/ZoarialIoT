@@ -29,6 +29,13 @@ namespace ZoarialIoT {
 			int 			_loggingLevel;
 
 		//Constants
+			
+			const int RECV_NODE = 	0;
+			const int BASIC_NODE = 	1;
+			const int SATELLITE =   2;
+			
+			
+			
 			const char * DEVICE = 		"ZoarialIoT.device";
 			const char * LOGGING = 		"ZoarialIoT.logging";
 			
@@ -51,6 +58,7 @@ namespace ZoarialIoT {
 			**/
 			bool openConfigFile();
 			bool openConfigFile(const std::string& file);
+			bool verifyServerConfigOptions();
 			bool fileExists(const std::string& file);
 			bool readConfigFile();
 

@@ -157,3 +157,28 @@ bool ZoarialIoTNode::readConfigFile() {
 		return false;
 	}
 }
+
+bool ZoarialIoTNode::verifyServerConfigOptions() {
+
+	if(_hostname == "") {
+
+		char hostname[1024];
+		gethostname(hostname, 1024);
+		_hostname = hostname;
+	}
+
+	if(_nodeType != BASIC_NODE || _nodeType != RECV_NODE) {
+		std::cerr << "NODE TYPE IS INVALID: " << _nodeType std::endl;
+		return false;
+	}
+
+	if(_messageTimeout < -1) {
+		_messageTimeout = -1;
+	}
+
+	if(_pingTimeout < -1) {
+		_pingTimeout = -1;
+	}
+
+	return true;
+}
