@@ -7,12 +7,18 @@
 #include <string>
 #include <iostream>
 #include <config4cpp/Configuration.h>
+#include <exception>
 
 namespace ZoarialIoT {
 
 	class ZoarialIoTNode {
 
 		private:
+		//Arguments/Options
+
+			//Should the default config be used on the failure to parse the given config file
+			bool _useDefaultConfigOnInvalidConfig;
+
 		//Inizalizing Variables
 
 			//Server should reset if any of these change
@@ -34,7 +40,7 @@ namespace ZoarialIoT {
 			const int BASIC_NODE = 	1;
 			const int SATELLITE =   2;
 			
-			
+			const char * APP = "ZoarialIoT";
 			
 			const char * DEVICE = 		"ZoarialIoT.device";
 			const char * LOGGING = 		"ZoarialIoT.logging";
@@ -46,6 +52,7 @@ namespace ZoarialIoT {
 		
 		//Members
 			config4cpp::Configuration * _cfg;
+			config4cpp::Configuration * _defaultCfg;
 			//Server         _server;
 
 		//Functions
@@ -56,11 +63,16 @@ namespace ZoarialIoT {
 			 *
 			 *
 			**/
-			bool openConfigFile();
-			bool openConfigFile(const std::string& file);
-			bool verifyServerConfigOptions();
+			int openConfigFile();
+			int openConfigFile(const std::string& file);
+			int verifyServerConfigOptions();
 			bool fileExists(const std::string& file);
-			bool readConfigFile();
+			int readConfigFile();
+			int openDefaultConfigFile();
+
+			const char* readStringFromConfigFile(const char* scope, const char* localName, const char* defaultVal);
+			int readIntFromConfigFile(const char* scope, const char* localName, int defaultVal);
+			bool readBoolFromConfigFile(const char* scope, const char* localName, bool defaultVal);
 
 		public:
 
@@ -68,9 +80,14 @@ namespace ZoarialIoT {
 			ZoarialIoTNode();	
 			~ZoarialIoTNode();
 
-			bool setConfigFile(const std::string& file);
-			bool initServerConfiguration();
+			int setConfigFile(const std::string& file);
+			int initServerConfiguration();
+			void useDefaultConfigOnInvalidConfig(bool use);
 
 	}; //ZoarialIoTNode
+
+	class ZoarialExcept;
+	class ZoarialConfigExcept;
+
 } //ZoarialIoT
 #endif //ZOARIALIOTNODE_HPP

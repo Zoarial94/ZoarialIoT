@@ -20,47 +20,41 @@ ZoarialIoTNode::ZoarialIoTNode() :
 	_cfg = config4cpp::Configuration::create();
 }
 
-bool ZoarialIoTNode::initServerConfiguration() {
+int ZoarialIoTNode::initServerConfiguration() {
 
-	std::cout << "Attempting To Set Config File To: " << _configFileName << std::endl;
-	if(setConfigFile(_configFileName)) {
-		std::cout << "Attempting To Read Config File..." << std::endl;
-		if(openConfigFile()) {
-			std::cout << "Configration File Successfully Opened" << std::endl;
-		} else {
-			if(fileExists(DEFAULT_CONFIG_FILE)) {
-
-				std::cerr << "USING DEFAULT CONFIG FILE..." << std::endl;
-
-				if(openConfigFile(DEFAULT_CONFIG_FILE)) {
-					//return true;
-				}
-
-			} else {
-
-				std::cerr << "NO CORRECT CONFIGURATION FILES" << std::endl;
-				return false;
-			}
-		}
+	int status = setConfigFile(_configFileName);
+	std::cout << "Attempting To Set Configuration File...";
+	if(status == 0) {
+		std::cout << "Success" << std::endl;
 	} else {
-		std::cerr << "CONFIGURATION FILE COULD NOT BE SET: " << _configFileName << std::endl;
-		
-		if(fileExists(DEFAULT_CONFIG_FILE)) {
-
-			std::cerr << "USING DEFAULT CONFIG FILE..." << std::endl;
-
-			if(openConfigFile(DEFAULT_CONFIG_FILE)) {
-				//return true;
-			}
-
-		} else {
-
-			std::cerr << "NO CORRECT CONFIGURATION FILES" << std::endl;
-			return false;
-		}
+		std::cerr << "Failed" << std::endl;
+		return status;
 	}
 
-	return readConfigFile();
+	std::cout << "Attempting To Read Config File...";
+	try {
+	
+		openConfigFile();
+		std::cout << "Success" << std::endl;
+		status = openDefaultConfigFile() - 10;
+	
+	} catch(const config4cpp::ConfigurationException & ex) {
+
+		std::cerr << "CONFIGURATION FILE COULD NOT BE SET: " << _configFileName << std::endl;
+		
+		if(!_useDefaultConfigOnInvalidConfig) {
+			return 6104;
+		} 
+
+		status = openDefaultConfigFile();
+		if(status == 6124) {
+			return status;
+		}
+	}
+	
+	status = readConfigFile();
+
+	return -1;
 
 }
 
