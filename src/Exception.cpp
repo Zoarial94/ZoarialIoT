@@ -40,3 +40,6 @@ const char* ZoarialIoT::ZoarialConfigExcept::getLocal() const {
 	return _localName.c_str();
 }
 
+int ZoarialIoT::ZoarialConfigExcept::getErrorCode() const {
+	return _errorCode;
+}

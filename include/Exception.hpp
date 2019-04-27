@@ -42,6 +42,7 @@ class ZoarialIoT::ZoarialConfigExcept : ZoarialIoT::ZoarialExcept {
 
 	const char* getLocal() const;
 
+	int getErrorCode() const;
 };
 
 
