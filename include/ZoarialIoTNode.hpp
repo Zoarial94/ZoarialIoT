@@ -70,9 +70,9 @@ namespace ZoarialIoT {
 			int readConfigFile();
 			int openDefaultConfigFile();
 
-			const char* readStringFromConfigFile(const char* scope, const char* localName, const char* defaultVal);
-			int readIntFromConfigFile(const char* scope, const char* localName, int defaultVal);
-			bool readBoolFromConfigFile(const char* scope, const char* localName, bool defaultVal);
+			const char* readStringFromConfigFile(const char* scope, const char* localName);
+			int readIntFromConfigFile(const char* scope, const char* localName);
+			bool readBoolFromConfigFile(const char* scope, const char* localName);
 
 		public:
 

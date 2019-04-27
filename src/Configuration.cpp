@@ -55,8 +55,10 @@ int ZoarialIoTNode::openConfigFile() {
 		std::cout << newFileName.str() << std::endl;
 
 		rename(_configFileName.c_str(), newFileName.str().c_str());
+		
+		std::cerr << "CONFIGURATION FILE COULD NOT BE SET: " << _configFileName << std::endl;
 
-		throw;
+		return 6104;
 	}
 
 }
@@ -87,7 +89,7 @@ int ZoarialIoTNode::readConfigFile() {
 	  _cfg->insertString(DEVICE.c_str(), "ping_timeout", "90");
 
 	  _cfg->insertString(LOGGING.c_str(), "log_file_name", "/etc/ZoarialIoT/logging.log");
-	  _cfg->insertString(LOGGING.c_str(), "loggging_level", "3");
+	  _cfg->insertString(LOGGING.c_str(), "logging_level", "3");
 
 	  std::cout << "Configurations added, attempting to write to file..." << std::endl;
 
@@ -123,18 +125,13 @@ int ZoarialIoTNode::readConfigFile() {
 		return 6104;
 	} 
 
-	try {
-		_hostname = readStringFromConfigFile(DEVICE, "hostname", "");
-		_nodeType = readIntFromConfigFile(DEVICE, "node_type", -1);
-		_isVolatile = readBoolFromConfigFile(DEVICE, "is_volatile", false);
-		_messageTimeout = readIntFromConfigFile(DEVICE, "message_timeout", -1);
-		_pingTimeout = readIntFromConfigFile(DEVICE, "ping_timeout", -1);
-		_logFileName = readStringFromConfigFile(DEVICE, "log_file_name", "/etc/ZoarialIoT/log.log");
-		_loggingLevel = readIntFromConfigFile(DEVICE, "logging_level", 3);
-	} catch(const ZoarialConfigExcept & ex) {
-		std::cerr << "ERROR READING: " << ex.getLocal() << "\n";
-		throw;
-	}
+		_hostname = readStringFromConfigFile(DEVICE, "hostname");
+		_nodeType = readIntFromConfigFile(DEVICE, "node_type");
+		_isVolatile = readBoolFromConfigFile(DEVICE, "is_volatile");
+		_messageTimeout = readIntFromConfigFile(DEVICE, "message_timeout");
+		_pingTimeout = readIntFromConfigFile(DEVICE, "ping_timeout");
+		_logFileName = readStringFromConfigFile(LOGGING, "log_file_name");
+		_loggingLevel = readIntFromConfigFile(LOGGING, "logging_level");
 
 	return 0;
 }
@@ -170,15 +167,33 @@ void ZoarialIoTNode::useDefaultConfigOnInvalidConfig(bool use) {
 
 int ZoarialIoTNode::openDefaultConfigFile() {
 
-	std::cout << "Attempting To Use Default File...";
 	if(fileExists(DEFAULT_CONFIG_FILE)) {
-
 		try {
-			openConfigFile(DEFAULT_CONFIG_FILE);
-			std::cout << "Success" << std::endl;
+
+			_defaultCfg->parse(_configFileName.c_str());
+			_cfg->setFallbackConfiguration(_defaultCfg);
 			return 6120;
+
 		} catch(const config4cpp::ConfigurationException & ex) {
-			std::cerr << "Failed" << std::endl;
+
+			std::string configFileName = _defaultCfg->fileName();
+			time_t now = time(0);
+			std::tm * ltm= localtime(&now);
+			std::stringstream newFileName;
+			newFileName << "/etc/ZoarialIoT/";
+			int nameStart = configFileName.rfind("/") + 1;
+			int nameEnd = configFileName.rfind(".");
+
+			newFileName << configFileName.substr(nameStart, nameEnd-nameStart);
+			newFileName << "-fail(";
+			newFileName << 1 + ltm->tm_mon << "-" << ltm->tm_mday << "-" << 1900 + ltm->tm_year << " ";
+			newFileName << 1 + ltm->tm_hour << ":" << 1 + ltm->tm_min << ":" << 1 + ltm->tm_sec << ")";
+			newFileName << ".cfg";
+
+			std::cout << newFileName.str() << std::endl;
+
+			rename(configFileName.c_str(), newFileName.str().c_str());
+			
 			std::cerr << "DEFAULT CONFIG FILE IS INVALID";
 			return 6124;
 		}
