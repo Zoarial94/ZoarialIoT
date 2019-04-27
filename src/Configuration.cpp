@@ -190,25 +190,25 @@ int ZoarialIoTNode::openDefaultConfigFile() {
 
 }
 
-const char* ZoarialIoTNode::readStringFromConfigFile(const char* scope, const char* localName, const char* defaultVal) {
+const char* ZoarialIoTNode::readStringFromConfigFile(const char* scope, const char* localName) {
 	try {
-		return _cfg->lookupString(scope, localName, defaultVal);
+		return _cfg->lookupString(scope, localName);
 	} catch(const config4cpp::ConfigurationException & ex) {
 		throw ZoarialConfigExcept(ex.c_str(), _cfg->fileName(), scope, localName, -1);
 	}
 }
 
-int ZoarialIoTNode::readIntFromConfigFile(const char* scope, const char* localName, int defaultVal) {
+int ZoarialIoTNode::readIntFromConfigFile(const char* scope, const char* localName) {
 	try {
-		return _cfg->lookupInt(scope, localName, defaultVal);
+		return _cfg->lookupInt(scope, localName);
 	} catch(const config4cpp::ConfigurationException & ex) {
 		throw ZoarialConfigExcept(ex.c_str(), _cfg->fileName(), scope, localName, -1);
 	}
 }
 
-bool ZoarialIoTNode::readBoolFromConfigFile(const char* scope, const char* localName, bool defaultVal) {
+bool ZoarialIoTNode::readBoolFromConfigFile(const char* scope, const char* localName) {
 	try {
-		return _cfg->lookupBoolean(scope, localName, defaultVal);
+		return _cfg->lookupBoolean(scope, localName);
 	} catch(const config4cpp::ConfigurationException & ex) {
 		throw ZoarialConfigExcept(ex.c_str(), _cfg->fileName(), scope, localName, -1);
 	}
