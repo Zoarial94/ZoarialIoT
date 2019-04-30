@@ -132,6 +132,7 @@ int ZoarialIoTNode::readConfigFile() {
 		_pingTimeout = readIntFromConfigFile(DEVICE, "ping_timeout");
 		_logFileName = readStringFromConfigFile(LOGGING, "log_file_name");
 		_loggingLevel = readIntFromConfigFile(LOGGING, "logging_level");
+		_port = readIntFromConfigFile(DEVICE, "port");
 
 	return 0;
 }
@@ -145,7 +146,7 @@ int ZoarialIoTNode::verifyServerConfigOptions() {
 		_hostname = hostname;
 	}
 
-	if(_nodeType != BASIC_NODE || _nodeType != RECV_NODE) {
+	if(_nodeType != BASIC_NODE && _nodeType != RECV_NODE) {
 		std::cerr << "NODE TYPE IS INVALID: " << _nodeType << std::endl;
 		return 1112;
 	}
@@ -197,12 +198,10 @@ int ZoarialIoTNode::openDefaultConfigFile() {
 			std::cerr << "DEFAULT CONFIG FILE IS INVALID";
 			return 6124;
 		}
-
 	} else {
 		std::cerr << "DEFAULT FILE DOES NOT EXISTS" << std::endl;
 		return 6121;
 	}
-
 }
 
 const char* ZoarialIoTNode::readStringFromConfigFile(const char* scope, const char* localName) {

@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 namespace ZoarialIoT {
 	class Server {
@@ -16,6 +17,7 @@ namespace ZoarialIoT {
 			const int 			IP_ADDR;
 			const bool 			NODE_TYPE;
 			const bool			IS_VOLATILE;
+			const int 			PORT;
 
 		//Variables
 			//In milliseconds
@@ -24,12 +26,12 @@ namespace ZoarialIoT {
 			int _pingTimeout;
 
 		//Members
-			Tins::PacketSender sender;
+			std::unique_ptr<Tins::PacketSender> sender;
 			
 		//Functions
 
 		public:
-			Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int messageTimeout, int pingTimeout);
+			Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, int messageTimeout, int pingTimeout);
 			~Server();
 
 	}; //Server

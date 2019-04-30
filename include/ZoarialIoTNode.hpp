@@ -27,6 +27,7 @@ namespace ZoarialIoT {
 			bool 			_nodeType;
 			bool 			_isVolatile;
 			std::string 	_configFileName;
+			int 			_port;
 	
 			//Can change in run time
 			int 			_messageTimeout;
@@ -53,7 +54,7 @@ namespace ZoarialIoT {
 		//Members
 			config4cpp::Configuration * _cfg;
 			config4cpp::Configuration * _defaultCfg;
-			//Server         _server;
+			std::unique_ptr<Server>     _server;
 
 		//Functions
 			/*
@@ -74,6 +75,9 @@ namespace ZoarialIoT {
 			int readIntFromConfigFile(const char* scope, const char* localName);
 			bool readBoolFromConfigFile(const char* scope, const char* localName);
 
+			int initConfiguration();
+			int initServer();
+
 		public:
 
 		//Functions
@@ -83,6 +87,7 @@ namespace ZoarialIoT {
 			int setConfigFile(const std::string& file);
 			int initServerConfiguration();
 			void useDefaultConfigOnInvalidConfig(bool use);
+			void start();
 
 	}; //ZoarialIoTNode
 

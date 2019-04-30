@@ -1,5 +1,6 @@
 #include "ZoarialIoTNode.hpp"
 #include "Exception.hpp"
+#include "Server.hpp"
 
 #include <config4cpp/Configuration.h>
 
@@ -7,6 +8,7 @@
 #include <locale.h>
 #include <clocale>
 #include <string>
+#include <memory>
 
 using namespace ZoarialIoT;
 
@@ -16,20 +18,35 @@ ZoarialIoTNode::ZoarialIoTNode() :
 {
 
 	std::setlocale(LC_ALL, "");
-	std::cout << "Constructing Server" << std::endl;
+	std::cout << "Constructing Node" << std::endl;
 
 	_cfg = config4cpp::Configuration::create();
 	_defaultCfg = config4cpp::Configuration::create();
 }
 
 ZoarialIoTNode::~ZoarialIoTNode() {
-	std::cout << "Deconstructing Server" << std::endl;
+	std::cout << "Deconstructing Node...";
 
 	_cfg->destroy();
 	_defaultCfg->destroy();
+
+	std::cout << "Success" << std::endl;
 }
 
 int ZoarialIoTNode::initServerConfiguration() {
+	int status = initConfiguration();
+	if(status != 0) {
+		return status;
+	}
+
+	status = initServer();
+	if(status != 0) {
+		return status;
+	}
+	return 0;
+}
+
+int ZoarialIoTNode::initConfiguration() {
 
 	std::cout << "Attempting To Set Configuration File...";
 	int status = setConfigFile(_configFileName);
@@ -81,9 +98,20 @@ int ZoarialIoTNode::initServerConfiguration() {
 		std::cerr << "ERROR READING LOCALNAME: " << ex.getLocal() << " | IN SCOPE: " << ex.getScope() << "\n";
 		return ex.getErrorCode();
 	}
-
 	std::cout << "Success" << std::endl;
 
-	return -1;
+	status = verifyServerConfigOptions();
+	std::cout << "Attempting To Verify Server Options...";
+	if(status != 0 ) {
+		std::cerr << "Failed\n";
+		return status;
+	}
+	std::cout << "Success" << std::endl;
+	return 0;	
+}
 
+int ZoarialIoTNode::initServer() {
+	int status = 0;
+	_server = std::make_unique<Server>(_hostname, _ipAddr, _nodeType, _isVolatile, _port, _messageTimeout, _pingTimeout);
+	return 0;
 }

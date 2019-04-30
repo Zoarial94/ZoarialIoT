@@ -12,19 +12,21 @@ int main(int argc, char const *argv[])
 	}
 
 
-	std::cout << "Creating Server From main()" << std::endl;
+	std::cout << "Creating Node From main()" << std::endl;
 	ZoarialIoT::ZoarialIoTNode server;
-	std::cout << "Server Created... Initializing Server Configuration" << std::endl;
+	std::cout << "Node Created... Initializing Server Configuration" << std::endl;
 	
 	int status = server.initServerConfiguration();
 
 	if(status == 0) {
-		std::cout << "Server Initialized" << std::endl;
+		std::cout << "Node Initialized" << std::endl;
 	} else {
-		std::cerr << "Server Incorrectly Initialized: " << status << std::endl;
+		std::cerr << "Node Incorrectly Initialized: " << status << std::endl;
 	}
 
-	
+	std::cout << "Starting Server" << std::endl;
+
+	server.start();
 
 
 	//Turn argument into int
