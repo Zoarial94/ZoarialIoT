@@ -26,9 +26,14 @@ namespace ZoarialIoT {
 			int _pingTimeout;
 
 		//Members
-			std::unique_ptr<Tins::PacketSender> sender;
-			
+			std::unique_ptr<Tins::PacketSender> _sender;
+			std::unique_ptr<Tins::Sniffer> 		_UDPsniffer;
+			std::unique_ptr<Tins::Sniffer> 		_TCPsniffer;
+			Tins::SnifferConfiguration 			_UDPSnifferConfig;
+			Tins::SnifferConfiguration 			_TCPSnifferConfig;
+
 		//Functions
+			bool packetHandler(const Tins::PDU& pkt);
 
 		public:
 			Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, int messageTimeout, int pingTimeout);
