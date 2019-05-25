@@ -6,8 +6,8 @@
 
 using namespace ZoarialIoT;
 
-Server::Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, int messageTimeout, int pingTimeout) : 
-HOSTNAME(hostname), IP_ADDR(ipAddr), NODE_TYPE(nodeType), IS_VOLATILE(isVolatile), PORT(port), _messageTimeout(messageTimeout), _pingTimeout(pingTimeout)
+Server::Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, std::string interface, int messageTimeout, int pingTimeout) : 
+HOSTNAME(hostname), IP_ADDR(ipAddr), NODE_TYPE(nodeType), IS_VOLATILE(isVolatile), PORT(port), INTERFACE(interface), _messageTimeout(messageTimeout), _pingTimeout(pingTimeout)
 {
 
 	std::cout << "Constructing Server" << std::endl;

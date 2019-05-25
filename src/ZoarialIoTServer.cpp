@@ -112,6 +112,6 @@ int ZoarialIoTNode::initConfiguration() {
 
 int ZoarialIoTNode::initServer() {
 	int status = 0;
-	_server = std::make_unique<Server>(_hostname, _ipAddr, _nodeType, _isVolatile, _port, _messageTimeout, _pingTimeout);
+	_server = std::make_unique<Server>(_hostname, _ipAddr, _nodeType, _isVolatile, _port, "eth0", _messageTimeout, _pingTimeout);
 	return 0;
 }

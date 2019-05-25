@@ -18,6 +18,7 @@ namespace ZoarialIoT {
 			const bool 			NODE_TYPE;
 			const bool			IS_VOLATILE;
 			const int 			PORT;
+			const std::string 	INTERFACE;
 
 		//Variables
 			//In milliseconds
@@ -36,7 +37,7 @@ namespace ZoarialIoT {
 			bool packetHandler(const Tins::PDU& pkt);
 
 		public:
-			Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, int messageTimeout, int pingTimeout);
+			Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, std::string interface, int messageTimeout, int pingTimeout);
 			~Server();
 
 	}; //Server
