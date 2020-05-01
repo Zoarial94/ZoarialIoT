@@ -2,19 +2,18 @@
 #define EXCEPTION_HPP
 
 class ZoarialIoT::ZoarialExcept : virtual public std::exception {
-
-	int _errorCode;          
+      
 	std::string _msg; 
 
-	public:
+public:
 
-	explicit ZoarialExcept(const std::string& msg, int errNum);
+	explicit ZoarialExcept(const std::string& msg);
 
 	explicit ZoarialExcept();
 
 	virtual ~ZoarialExcept();
 
-	virtual const char* what();
+	virtual const std::string what();
 
 }; //ZoarialExcept
 
@@ -24,23 +23,22 @@ class ZoarialIoT::ZoarialConfigExcept : ZoarialIoT::ZoarialExcept {
 	std::string _scope;
 	std::string _localName;
 	std::string _configFileName;
-	int _errorCode;
 
-	public:
+public:
 	
-	explicit ZoarialConfigExcept(const std::string& msg, const std::string& file, const std::string& scope, const std::string& localName, int errorCode);
+	explicit ZoarialConfigExcept(const std::string& msg, const std::string& file, const std::string& scope, const std::string& localName);
 
 	virtual ~ZoarialConfigExcept();
 
 	virtual const char* what();
 
-	const char* configWhat() const;
+	const std::string configWhat() const;
 
-	const char* getFile() const;
+	const std::string getFile() const;
 
-	const char* getScope() const;
+	const std::string getScope() const;
 
-	const char* getLocal() const;
+	const std::string getLocal() const;
 
 	int getErrorCode() const;
 };
