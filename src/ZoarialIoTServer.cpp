@@ -25,7 +25,7 @@ ZoarialIoTNode::~ZoarialIoTNode() {
 	std::cout << "Success" << std::endl;
 }
 
-int ZoarialIoTNode::initServerConfiguration() noexcept {
+void ZoarialIoTNode::initServerConfiguration() noexcept {
 	int status = initConfiguration();
 	if(status != 0) {
 		return status;
@@ -38,69 +38,23 @@ int ZoarialIoTNode::initServerConfiguration() noexcept {
 	return 0;
 }
 
-int ZoarialIoTNode::initConfiguration() noexcept {
+void ZoarialIoTNode::initConfiguration()  {
 
-	std::cout << "Attempting To Set Configuration File...";
-	int status = setConfigFile(_configFileName);
-	if(status == 0) {
-		std::cout << "Success" << std::endl;
-	} else {
-		std::cerr << "Failed" << std::endl;
-		return status;
-	}
-
-	bool configFileFailed = false;
 	std::cout << "Attempting To Open Config File...";
-	status = openConfigFile();
-	
-	//	If the file failed to open, use the default config file, or fail.
-	if(status != 0) {
-		configFileFailed = true;
-		if(!_useDefaultConfigOnInvalidConfig) {
-			std::cerr << "Failed\n";
-			return status;
-		} else {
-			std::cout << "Failed but continuing" << std::endl;
-		}
-	} else {
-		std::cout << "Success" << std::endl;
-	}
-
-
-	std::cout << "Attempting To Set Configuration Fallback...";
-
-	status = openDefaultConfigFile();
-	if(!configFileFailed) {
-		status -= 10;
-	}
-	if(status != 6110 && status != 6120) {
-		std::cerr << "Failed\n";
-		return status;
-	}
-
+	status = openConfigFile(_configFileName);
 	std::cout << "Success" << std::endl;
+
 	std::cout << "Attempting To Read Config File...";
-
 	status = readConfigFile();
-	if(status != 0) {
-		std::cerr << "Failed\n";
-		return status;
-	}
 	std::cout << "Success" << std::endl;
 
-	status = verifyServerConfigOptions();
 	std::cout << "Attempting To Verify Server Options...";
-	if(status != 0 ) {
-		std::cerr << "Failed\n";
-		return status;
-	}
+	status = verifyServerConfigOptions();
 	std::cout << "Success" << std::endl;
-	return 0;	
 }
 
-int ZoarialIoTNode::initServer() noexcept {
+void ZoarialIoTNode::initServer() noexcept {
 	_server = std::make_unique<Server>(_hostname, _ipAddr, _nodeType, _isVolatile, _port, "eth0", _messageTimeout, _pingTimeout);
-	return 0;
 }
 
 void ZoarialIoTNode::start() noexcept {

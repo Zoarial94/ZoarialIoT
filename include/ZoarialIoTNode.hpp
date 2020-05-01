@@ -66,39 +66,27 @@ namespace ZoarialIoT {
 	 *
 	**/
 	//	Open a file
-		int openConfigFile(const std::string& file) noexcept;
-		int openConfigFile() noexcept;
+	//	May throw if unable to find/open a file
+		void openConfigFile(const std::string& file);
 
 	//	Verify the server options are valid	
-		int verifyServerConfigOptions() noexcept;
+		void verifyServerConfigOptions();
 
 	//	Check to see a file exists
 		bool fileExists(const std::string& file) noexcept;
 
 	//  Read the file
-		int readConfigFile() noexcept;
-
-	//	Open the default config file
-		int openDefaultConfigFile() noexcept;
-
-	//	Read string from config
-		std::string readStringFromConfigFile(std::string localName) noexcept;
-
-	// 	Read int from config
-		int readIntFromConfigFile(std::string localName) noexcept;
-
-	//  Read bool from config
-		bool readBoolFromConfigFile(std::string localName) noexcept;
+		void readConfigFile();
 
 	//  Generate a default file
 		void generateDefaultConfigFile(std::string file = DEFAULT_CONFIG_FILE) noexcept;
 
 
 	//  Initialize variables from the configuration file
-		int initConfiguration() noexcept;
+		void initConfiguration();
 
 	//	Initialize the server
-		int initServer() noexcept;
+		void initServer() noexcept;
 
 	public:
 
@@ -106,14 +94,8 @@ namespace ZoarialIoT {
 		ZoarialIoTNode();	
 		~ZoarialIoTNode();
 
-	//  Set the config file
-		int setConfigFile(const std::string& file) noexcept;
-
 	// 	Init the server
-		int initServerConfiguration() noexcept;
-
-	//	Use default values if the normal file is invalid
-		void useDefaultConfigOnInvalidConfig(bool use) noexcept;
+		void initServerConfiguration() noexcept;
 
 	//	Start the server
 		void start() noexcept;
