@@ -1,5 +1,5 @@
 #Standard Compiling Options
-CXX := gcc
+CXX := g++
 SRCDIR := src
 BUILDDIR := build
 INCDIR := include
@@ -17,9 +17,9 @@ INCEXT := hpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 DEPENDENCIES := $(patsubst $(SRCDIR)/%,$(DEPDIR)/%,$(SOURCES:.$(SRCEXT)=.d))
-LIB := -lpthread -ldl -lstdc++ -ltins -lconfig4cpp
-LIBDIR := -L~/Documents/Libraries/ 
-CXXFLAGS := -Wall
+LIB := -lpthread -ldl -lstdc++ -ltins -lconfig++
+LIBDIR := -L~/Libraries/ 
+CXXFLAGS := -Wall -Werror -std=c++17 
 INC := -I include
 
 #Testing Compiling Files and Arguments

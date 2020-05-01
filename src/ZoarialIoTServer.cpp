@@ -2,7 +2,7 @@
 #include "Exception.hpp"
 #include "Server.hpp"
 
-#include <config4cpp/Configuration.h>
+#include <libconfig.h++>
 
 #include <iostream>
 #include <locale.h>
@@ -14,26 +14,18 @@ using namespace ZoarialIoT;
 
 //Constructor
 ZoarialIoTNode::ZoarialIoTNode() :
-	_configFileName("/etc/ZoarialIoT/config.cfg")
-{
-
+	_configFileName(NORMAL_CONFIG_FILE) {
 	std::setlocale(LC_ALL, "");
 	std::cout << "Constructing Node" << std::endl;
-
-	_cfg = config4cpp::Configuration::create();
-	_defaultCfg = config4cpp::Configuration::create();
 }
 
 ZoarialIoTNode::~ZoarialIoTNode() {
 	std::cout << "Deconstructing Node...";
 
-	_cfg->destroy();
-	_defaultCfg->destroy();
-
 	std::cout << "Success" << std::endl;
 }
 
-int ZoarialIoTNode::initServerConfiguration() {
+int ZoarialIoTNode::initServerConfiguration() noexcept {
 	int status = initConfiguration();
 	if(status != 0) {
 		return status;
@@ -46,7 +38,7 @@ int ZoarialIoTNode::initServerConfiguration() {
 	return 0;
 }
 
-int ZoarialIoTNode::initConfiguration() {
+int ZoarialIoTNode::initConfiguration() noexcept {
 
 	std::cout << "Attempting To Set Configuration File...";
 	int status = setConfigFile(_configFileName);
@@ -60,6 +52,8 @@ int ZoarialIoTNode::initConfiguration() {
 	bool configFileFailed = false;
 	std::cout << "Attempting To Open Config File...";
 	status = openConfigFile();
+	
+	//	If the file failed to open, use the default config file, or fail.
 	if(status != 0) {
 		configFileFailed = true;
 		if(!_useDefaultConfigOnInvalidConfig) {
@@ -87,16 +81,10 @@ int ZoarialIoTNode::initConfiguration() {
 	std::cout << "Success" << std::endl;
 	std::cout << "Attempting To Read Config File...";
 
-	try {
-		status = readConfigFile();
-		if(status != 0) {
-			std::cerr << "Failed\n";
-			return status;
-		}
-	} catch(const ZoarialConfigExcept & ex) {
+	status = readConfigFile();
+	if(status != 0) {
 		std::cerr << "Failed\n";
-		std::cerr << "ERROR READING LOCALNAME: " << ex.getLocal() << " | IN SCOPE: " << ex.getScope() << "\n";
-		return ex.getErrorCode();
+		return status;
 	}
 	std::cout << "Success" << std::endl;
 
@@ -110,8 +98,11 @@ int ZoarialIoTNode::initConfiguration() {
 	return 0;	
 }
 
-int ZoarialIoTNode::initServer() {
-	int status = 0;
+int ZoarialIoTNode::initServer() noexcept {
 	_server = std::make_unique<Server>(_hostname, _ipAddr, _nodeType, _isVolatile, _port, "eth0", _messageTimeout, _pingTimeout);
 	return 0;
+}
+
+void ZoarialIoTNode::start() noexcept {
+	std::cout << "Starting node...\n";
 }
