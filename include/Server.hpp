@@ -11,34 +11,35 @@
 namespace ZoarialIoT {
 	class Server {
 
-		private:
-		//Constants
-			const std::string 	HOSTNAME;
-			const int 			IP_ADDR;
-			const bool 			NODE_TYPE;
-			const bool			IS_VOLATILE;
-			const int 			PORT;
-			const std::string 	INTERFACE;
+	private:
+	//Constants
+		const std::string 	HOSTNAME;
+		const int 			IP_ADDR;
+		const bool 			NODE_TYPE;
+		const bool			IS_VOLATILE;
+		const int 			PORT;
+		const std::string 	INTERFACE;
 
-		//Variables
-			//In milliseconds
-			int _messageTimeout;
-			//In Seconds
-			int _pingTimeout;
+	//Variables
+		//In milliseconds
+		int _messageTimeout;
+		//In Seconds
+		int _pingTimeout;
 
-		//Members
-			std::unique_ptr<Tins::PacketSender> _sender;
-			std::unique_ptr<Tins::Sniffer> 		_UDPsniffer;
-			std::unique_ptr<Tins::Sniffer> 		_TCPsniffer;
-			Tins::SnifferConfiguration 			_UDPSnifferConfig;
-			Tins::SnifferConfiguration 			_TCPSnifferConfig;
+	//Members
+		std::unique_ptr<Tins::PacketSender> _sender;
+		std::unique_ptr<Tins::Sniffer> 		_UDPsniffer;
+		std::unique_ptr<Tins::Sniffer> 		_TCPsniffer;
+		Tins::SnifferConfiguration 			_UDPSnifferConfig;
+		Tins::SnifferConfiguration 			_TCPSnifferConfig;
 
-		//Functions
-			bool packetHandler(const Tins::PDU& pkt);
+	//Functions
+		bool UDPpacketHandler(const Tins::PDU& pdu);
+		bool TCPpacketHandler(const Tins::PDU& pdu);
 
-		public:
-			Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, std::string interface, int messageTimeout, int pingTimeout);
-			~Server();
+	public:
+		Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, std::string interface, int messageTimeout, int pingTimeout);
+		~Server();
 
 	}; //Server
 } //ZoairalIoT
