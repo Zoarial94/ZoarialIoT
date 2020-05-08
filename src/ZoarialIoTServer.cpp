@@ -57,4 +57,5 @@ void ZoarialIoTNode::initServer() noexcept {
 void ZoarialIoTNode::start() noexcept {
 	std::cout << "Starting node...\n";
 	std::cin.get();
+	std::cout << "Stopping...\n";
 }
