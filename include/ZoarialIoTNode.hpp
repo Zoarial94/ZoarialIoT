@@ -17,8 +17,7 @@ namespace ZoarialIoT {
 	private:
 	//Arguments/Options
 
-	//Should the default config be used on the failure to parse the given config file
-		bool _useDefaultConfigOnInvalidConfig;
+	//TODO: Abstract the arguments and options with a template class
 
 	//Inizalizing Variables
 

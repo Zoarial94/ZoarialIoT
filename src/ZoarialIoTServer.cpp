@@ -25,38 +25,36 @@ ZoarialIoTNode::~ZoarialIoTNode() {
 	std::cout << "Success" << std::endl;
 }
 
+//	Load config and initialize the server
 void ZoarialIoTNode::initServerConfiguration() noexcept {
-	int status = initConfiguration();
-	if(status != 0) {
-		return status;
-	}
-
-	status = initServer();
-	if(status != 0) {
-		return status;
-	}
-	return 0;
+	initConfiguration();
+	initServer();
 }
 
+//	Open the file and read the contents
+//	Will verify proper arguments in initServer()
 void ZoarialIoTNode::initConfiguration()  {
 
 	std::cout << "Attempting To Open Config File...";
-	status = openConfigFile(_configFileName);
+	openConfigFile(_configFileName);
 	std::cout << "Success" << std::endl;
 
 	std::cout << "Attempting To Read Config File...";
-	status = readConfigFile();
-	std::cout << "Success" << std::endl;
-
-	std::cout << "Attempting To Verify Server Options...";
-	status = verifyServerConfigOptions();
+	readConfigFile();
 	std::cout << "Success" << std::endl;
 }
 
+//	Verify the arguments and then start the server
 void ZoarialIoTNode::initServer() noexcept {
+
+	std::cout << "Attempting To Verify Server Options...";
+	verifyServerConfigOptions();
+	std::cout << "Success" << std::endl;
+
 	_server = std::make_unique<Server>(_hostname, _ipAddr, _nodeType, _isVolatile, _port, "eth0", _messageTimeout, _pingTimeout);
 }
 
 void ZoarialIoTNode::start() noexcept {
 	std::cout << "Starting node...\n";
+	std::cin.get();
 }

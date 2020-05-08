@@ -5,6 +5,8 @@
 int main(int argc, char const *argv[]) 
 { 
 
+	//	TODO: check for argumens and set and values/behaviours
+
 	bool daemonize = false;
 
 	if(daemonize) {
@@ -16,13 +18,14 @@ int main(int argc, char const *argv[])
 	ZoarialIoT::ZoarialIoTNode server;
 	std::cout << "Node Created... Initializing Server Configuration" << std::endl;
 	
-	int status = server.initServerConfiguration();
+	//	Initialize values
+	//	TODO: automatically call this
+	server.initServerConfiguration();
 
-	if(status == 0) {
-		std::cout << "Node Initialized" << std::endl;
-	} else {
-		std::cerr << "Node Incorrectly Initialized: " << status << std::endl;
-	}
+	//	Configure the server as needed before starting
+	//
+	//
+	//
 
 	std::cout << "Starting Server" << std::endl;
 

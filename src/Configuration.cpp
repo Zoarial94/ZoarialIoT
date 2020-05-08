@@ -33,7 +33,6 @@ void ZoarialIoTNode::openConfigFile(const std::string& file = "") {
 
 	try {
 		_cfg.readFile(_configFileName);
-		return 0;
 	} catch(const libconfig::ParseException &e) {
 
 		//	There was a parse error
@@ -65,15 +64,14 @@ void ZoarialIoTNode::openConfigFile(const std::string& file = "") {
 
 }
 
-void ZoarialIoTNode::readConfigFile() noexcept {
+void ZoarialIoTNode::readConfigFile() {
 	try {
 		if(_cfg.lookup("app").c_str() != APP) {
 			throw new ZoarialExcept("CONFIG FILE IS NOT FOR ZOARIALIOT - Wrong Specifier");
 			//	TODO: Log this
 		}
 	} catch(const libconfig::SettingNotFoundException & ex) {
-		throw new ZoarialExcept("CONFIG FILE IS NOT FOR ZOARIALIOT - Missing Specifier);
-		std::cerr << " << std::endl;
+		throw new ZoarialExcept("CONFIG FILE IS NOT FOR ZOARIALIOT - Missing Specifier");
 		//	TODO: Log this
 	}
 
@@ -97,14 +95,14 @@ void ZoarialIoTNode::readConfigFile() noexcept {
 		_cfg.lookupValue(LOGGING + "log_file_name", _logFileName) && i++, true &&
 		_cfg.lookupValue(LOGGING + "logging_level", _loggingLevel) )
 	{ 
-		return
+		return;
 	} else {
 		//	TODO: Log this
 		throw new ZoarialExcept("Failed to read config file on count: " + std::to_string(i));
 	}
 }
 
-void ZoarialIoTNode::verifyServerConfigOptions() noexcept {
+void ZoarialIoTNode::verifyServerConfigOptions() {
 
 	if(_hostname == "") {
 
@@ -114,8 +112,7 @@ void ZoarialIoTNode::verifyServerConfigOptions() noexcept {
 	}
 
 	if(_nodeType != BASIC_NODE && _nodeType != RECV_NODE) {
-		std::cerr << "NODE TYPE IS INVALID: " << _nodeType << std::endl;
-		return 1112;
+		throw new ZoarialExcept("NODE TYPE IS INVALID: " + std::to_string(_nodeType));
 	}
 
 	if(_messageTimeout < -1) {

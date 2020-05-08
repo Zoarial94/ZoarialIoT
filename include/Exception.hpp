@@ -30,7 +30,7 @@ public:
 
 	virtual ~ZoarialConfigExcept();
 
-	virtual const char* what();
+	virtual const std::string what();
 
 	const std::string configWhat() const;
 
