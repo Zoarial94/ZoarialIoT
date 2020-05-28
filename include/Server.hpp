@@ -2,7 +2,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <tins/tins.h>
+#include <pcap/pcap.h>
 
 #include <iostream>
 #include <string>
@@ -27,19 +27,17 @@ namespace ZoarialIoT {
 		int _pingTimeout;
 
 	//Members
-		Tins::SnifferConfiguration 	_UDPSnifferConfig;
-		Tins::SnifferConfiguration 	_TCPSnifferConfig;
-		Tins::PacketSender 			_sender;
-		Tins::Sniffer 				_UDPSniffer;
-		Tins::Sniffer				_TCPSniffer;
+	
 
 	//Functions
-		bool UDPpacketHandler(Tins::PDU& pdu);
-		bool TCPpacketHandler(Tins::PDU& pdu);
+		bool UDPpacketHandler();
+		bool TCPpacketHandler();
 
 	public:
 		Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, std::string interface, int messageTimeout, int pingTimeout);
 		~Server();
+		
+		void start();
 
 	}; //Server
 } //ZoairalIoT

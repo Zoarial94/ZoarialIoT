@@ -7,8 +7,8 @@ TARGET := bin/main
 DEPDIR := dep
 
 #Testing Compiling Options
-TESTSRCDIR := test
-TESTBUILDDUR := test/build
+TESTSRCDIR := tests
+TESTBUILDDUR := tests/build
 TESTTARGET := bin/test
 
 #Standard Compiling Files and Arguments
@@ -17,9 +17,9 @@ INCEXT := hpp
 SOURCES := $(shell find $(SRCDIR) -type f -name "*.$(SRCEXT)")
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 DEPENDENCIES := $(patsubst $(SRCDIR)/%,$(DEPDIR)/%,$(SOURCES:.$(SRCEXT)=.d))
-LIB := -lpthread -ldl -lstdc++ -ltins -lconfig++
+LIB := -lpthread -ldl -lstdc++ -ltins -lconfig++ -lpcap
 LIBDIR := -L~/Libraries/ 
-CXXFLAGS := -Wall -Werror -std=c++17 
+CXXFLAGS := -Wall -Werror -std=c++17 -g
 INC := -I include
 
 #Testing Compiling Files and Arguments
