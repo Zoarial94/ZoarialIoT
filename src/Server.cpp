@@ -60,6 +60,11 @@ bool Server::UDPpacketHandler(int fd) {
   	
   	std::printf("From %s:\t%s", paddr, sockBuf);
   	
+  	if(strncmp(sockBuf, "shutdown", 8) == 0) {
+  		std::cout << "Recieved shutdown signal...\n";
+  		shutdownFlag = true;
+  	}
+  	
   	return false;
     
 }
@@ -135,6 +140,12 @@ void Server::start() {
 	
 	//
 	for (;;) {
+	
+		if(shutdownFlag.load()) {
+			std::cout << "Shutting down\n";
+			break;		
+		}
+	
        	nfds = epoll_wait(epollfd, events, MAX_EVENTS, 5000);
        	
        	//	0 means timeout
@@ -164,4 +175,6 @@ void Server::start() {
            	}
        	}
    	}
+   	//	We only have to worry about one socket with UDP
+   	close(listen_sock);
 }

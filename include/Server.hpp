@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <atomic>
 
 //	Sockets
 #include <cstdint>
@@ -45,12 +46,20 @@ namespace ZoarialIoT {
 	//Members
 		//	For sockets
         struct epoll_event ev, events[MAX_EVENTS];
-		int listen_sock, conn_sock, nfds, epollfd;
+        
+		int listen_sock, conn_sock;
+		//	Number of file descriptors
+		int nfds;
+		int epollfd;
+		
 		int status, addrlen;
+		//	buffer for data         buffer for ip addresses
 		char sockBuf[MAX_BUF_SIZE], paddr[INET_ADDRSTRLEN];
 		struct sockaddr_in localAddr, clientAddr;
 		
 		int flags, bytesRead;
+		
+		std::atomic<bool> shutdownFlag = false;
 
 	//Functions
 		bool UDPpacketHandler(int fd);
