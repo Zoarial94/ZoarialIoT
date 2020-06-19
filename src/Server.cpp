@@ -50,10 +50,13 @@ bool Server::UDPpacketHandler(int fd) {
   	//std::cout << "\tUDP Dst Port: " << udp.dport() << "\n";
   	//std::cout << "\t" << std::string(raw.payload().begin(), raw.payload().end()) << "\n\n";
   	
+  	addrlen = sizeof(clientAddr);
   	bytesRead = recvfrom(fd, sockBuf, MAX_BUF_SIZE, 0, (struct sockaddr*) &clientAddr, (socklen_t*)&addrlen);
   	sockBuf[bytesRead & (MAX_BUF_SIZE-1)] = 0;
   	
-  	inet_ntop(AF_INET, &(clientAddr.sin_addr), paddr, sizeof(paddr));
+  	if(inet_ntop(AF_INET, &(clientAddr.sin_addr), paddr, sizeof(paddr)) == nullptr) {
+  		std::cerr << "Unable to translate address into a string\n";
+  	}
   	
   	std::printf("From %s:\t%s", paddr, sockBuf);
   	
@@ -132,11 +135,16 @@ void Server::start() {
 	
 	//
 	for (;;) {
-       	nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1);
-       	if (nfds == -1) {
+       	nfds = epoll_wait(epollfd, events, MAX_EVENTS, 5000);
+       	
+       	//	0 means timeout
+       	if(nfds == 0) {
+       		std::cout << "Timeout in UDP loop...\n";
+       		continue;
+       	} else if (nfds == -1) {
            	perror("epoll_wait");
            	exit(EXIT_FAILURE);
-       	}
+       	} 
 
        	for (int n = 0; n < nfds; ++n) {
        		//	New incoming UDP socket
@@ -150,7 +158,9 @@ void Server::start() {
                	}*/
                	UDPpacketHandler(events[n].data.fd);
            	} else {
-               	UDPpacketHandler(events[n].data.fd);
+               	//	uh oh
+               	std::cout << "Recieved an event from an unexpected socket. Exiting...\n";
+               	exit(-1);
            	}
        	}
    	}
