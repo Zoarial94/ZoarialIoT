@@ -22,6 +22,7 @@
 #include <sys/epoll.h>
  
 namespace ZoarialIoT {
+
 	class Server {
 
 	private:
@@ -32,9 +33,10 @@ namespace ZoarialIoT {
 		const bool			IS_VOLATILE;
 		const int 			PORT;
 		const std::string 	INTERFACE;
+		//const bool 			CAN_BE_HEAD_NODE;
 		
 		//  Sockets
-		static const int MAX_EVENTS = 10;
+		static const int MAX_UDP_EPOLL_EVENTS = 2;
 		static const int MAX_BUF_SIZE = 1024;
 
 	//Variables
@@ -42,31 +44,40 @@ namespace ZoarialIoT {
 		int _messageTimeout;
 		//In Seconds
 		int _pingTimeout;
+		//
+		//bool _isHeadNode;
+		
+	//Structs and others
+		enum NetworkingType {
+			BLANK, UDP, TCP
+		};
 
+	 	//Mostly just used to prevent allocs and frees while calling functions to handle sockets
+		struct SocketHelper {
+			int fd = -1;                //  File descriptor used
+			int addrlen = -1;
+			struct sockaddr_in clientAddr;  //  Used for UDP connection
+			enum NetworkingType type = BLANK;       //  UDP or TCP
+			int bytesRead = -1;              //  Bytes used in the buffer
+			char sockBuf[MAX_BUF_SIZE];   //  Buffer holding the TCP/UDP packet
+			char paddr[INET_ADDRSTRLEN];	// Buffer to hold string version of ip addresses
+		};
+		
 	//Members
 		//	For sockets
-        struct epoll_event ev, events[MAX_EVENTS];
-        
-		int listen_sock, conn_sock;
-		//	Number of file descriptors
-		int nfds;
-		int epollfd;
-		
-		int status, addrlen;
-		//	buffer for data         buffer for ip addresses
-		char sockBuf[MAX_BUF_SIZE], paddr[INET_ADDRSTRLEN];
-		struct sockaddr_in localAddr, clientAddr;
-		
-		int flags, bytesRead;
-		
-		std::atomic<bool> shutdownFlag = false;
+		std::atomic<bool> _shutdownFlag = false;
+		//	Make file descriptors class member to make sure they are closed during deconstruction
+		int epollfd = -1, UDP_listen_sock = -1;
 
 	//Functions
-		bool UDPpacketHandler(int fd);
-		bool TCPpacketHandler();
+		bool UDPPacketHandler(SocketHelper helper);
+		bool TCPPacketHandler(SocketHelper helper);
+		
+		void UDPMainThreadFunc();
 		
 	//Sockets
 		bool setNonblocking(int fd);
+			
 
 	public:
 		Server(std::string& hostname, int ipAddr, bool nodeType, bool isVolatile, int port, std::string interface, int messageTimeout, int pingTimeout);

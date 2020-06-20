@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 #include <iostream>
+#include <thread>
 
 //	Sockets
 #include <cstdint>
@@ -34,72 +35,103 @@ HOSTNAME(hostname), IP_ADDR(ipAddr), NODE_TYPE(nodeType), IS_VOLATILE(isVolatile
 Server::~Server() {
 	std::cout << "Deconstructing Server...";
 	
-	if(listen_sock != -1) {
-		close(listen_sock);
+	if(UDP_listen_sock != -1) {
+		std::cout << "Closing UDP_listen_sock in dctor\n";
+		close(UDP_listen_sock);
+	}
+	
+	if(epollfd != -1) {
+		std::cout << "Closing epollfd in dctor\n";
+		close(epollfd);
 	}
 	
 	std::cout << "Success" << std::endl;
 }
 
 
-bool Server::UDPpacketHandler(int fd) {
-    
-    //std::cout << "\tMAC Addr: " << eth.dst_addr() << "\n";
-    //std::cout << "\tIP Addr: " << ip.src_addr() << "\n";
-  	//std::cout << "\tUDP Src Port: " << udp.sport() << "\n";
-  	//std::cout << "\tUDP Dst Port: " << udp.dport() << "\n";
-  	//std::cout << "\t" << std::string(raw.payload().begin(), raw.payload().end()) << "\n\n";
+bool Server::UDPPacketHandler(SocketHelper helper) {
+
+	if(helper.type != UDP) {
+		std::cerr << "Wrong type of SocketHelper received in UDPPacketHandler\n";
+	}
   	
-  	addrlen = sizeof(clientAddr);
-  	bytesRead = recvfrom(fd, sockBuf, MAX_BUF_SIZE, 0, (struct sockaddr*) &clientAddr, (socklen_t*)&addrlen);
-  	sockBuf[bytesRead & (MAX_BUF_SIZE-1)] = 0;
+  	helper.addrlen = sizeof(helper.clientAddr);
+  	helper.bytesRead = recvfrom(helper.fd, helper.sockBuf, sizeof(helper.sockBuf), 0, (struct sockaddr*) &(helper.clientAddr), (socklen_t*)&(helper.addrlen));
+  	//	Try and null terminate
+  	helper.sockBuf[helper.bytesRead & (MAX_BUF_SIZE-1)] = 0;
   	
-  	if(inet_ntop(AF_INET, &(clientAddr.sin_addr), paddr, sizeof(paddr)) == nullptr) {
+  	if(inet_ntop(AF_INET, &(helper.clientAddr.sin_addr), helper.paddr, sizeof(helper.paddr)) == nullptr) {
   		std::cerr << "Unable to translate address into a string\n";
   	}
   	
-  	std::printf("From %s:\t%s", paddr, sockBuf);
+  	std::printf("From %s:\t%s", helper.paddr, helper.sockBuf);
   	
-  	if(strncmp(sockBuf, "shutdown", 8) == 0) {
+  	if(strncmp(helper.sockBuf, "shutdown", 8) == 0) {
   		std::cout << "Recieved shutdown signal...\n";
-  		shutdownFlag = true;
+  		_shutdownFlag = true;
   	}
   	
   	return false;
     
 }
 
-bool Server::TCPpacketHandler() {
+bool Server::TCPPacketHandler(SocketHelper helper) {
 	return false;
 }
 
 bool Server::setNonblocking(int fd) {
+
+	int flags, status;
 	//	Set fd to non-blocking
 	//	First get the current flags, then add the non-blocking flag and save it.
 	flags = fcntl(fd, F_GETFL, 0);
   	if (flags == -1) {
-      	std::cerr << "Error getting flags from listen_sock\n";
+      	std::cerr << "Error getting flags from fd " << fd << "\n";
       	exit(EXIT_FAILURE);
 	}
 
 	flags |= O_NONBLOCK;
 	status = fcntl(fd, F_SETFL, flags);
 	if (status == -1) {
-		std::cerr << "Error setting flags for listen_sock\n";
+		std::cerr << "Error setting flags for fd " << fd << "\n";
 		exit(EXIT_FAILURE);
 	}
 	return true;
 }
 
 void Server::start() {
+	
+	std::cout << "Starting networking threads...\n";
 
+	std::thread UDPMainThread(&Server::UDPMainThreadFunc, this);
+	UDPMainThread.join();
+
+}
+
+void Server::UDPMainThreadFunc() {
+
+	std::cout << "UDP Main Thread started.\n";
+
+    struct epoll_event ev, events[MAX_UDP_EPOLL_EVENTS];
+    
+    struct SocketHelper UDPHelper;
+
+	//	Number of file descriptors
+	int nfds;
+
+	int status;
+	struct sockaddr_in localAddr;
+	
+	
 	//	Clear some structs
 	memset(&localAddr, '0', sizeof(localAddr));
-	memset(sockBuf, '0', sizeof(sockBuf));
+	
+	UDPHelper.type = UDP;
 	
 	//	Create the socket
-	listen_sock = socket(AF_INET, SOCK_DGRAM, 0);	
-	if(listen_sock == -1) {
+	UDP_listen_sock = socket(AF_INET, SOCK_DGRAM, 0);
+	UDPHelper.fd = UDP_listen_sock;
+	if(UDP_listen_sock == -1) {
 		std::cerr << "There was an error creating the socket.\n";
 		exit(EXIT_FAILURE);
 	}
@@ -111,7 +143,7 @@ void Server::start() {
 
 	
 	//	Bind the socket to the requirements in localAddr
-	status = bind(listen_sock, (struct sockaddr*)&localAddr , sizeof(localAddr));
+	status = bind(UDP_listen_sock, (struct sockaddr*)&localAddr , sizeof(localAddr));
 	if(status == -1) {
 		std::cerr << "There was an error binding to the socket.\n";
 		exit(EXIT_FAILURE);
@@ -125,28 +157,26 @@ void Server::start() {
 		exit(EXIT_FAILURE);
 	}
 
-	//	Set epoll to poll listen_socket
+	//	Set epoll to poll UDP_listen_sock
 	ev.events = EPOLLIN;
-	ev.data.fd = listen_sock;
-	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev) == -1) {
-		std::cerr << "There was an error adding listen_sock to the epoll.\n";
+	ev.data.fd = UDP_listen_sock;
+	if (epoll_ctl(epollfd, EPOLL_CTL_ADD, UDP_listen_sock, &ev) == -1) {
+		std::cerr << "There was an error adding UDP_listen_sock to the epoll.\n";
 		exit(EXIT_FAILURE);
 	}
 	
 	//
-	setNonblocking(listen_sock);
-	
-	std::cout << "Starting network loop...\n";
+	setNonblocking(UDP_listen_sock);
 	
 	//
 	for (;;) {
 	
-		if(shutdownFlag.load()) {
+		if(_shutdownFlag.load()) {
 			std::cout << "Shutting down\n";
 			break;		
 		}
 	
-       	nfds = epoll_wait(epollfd, events, MAX_EVENTS, 5000);
+       	nfds = epoll_wait(epollfd, events, MAX_UDP_EPOLL_EVENTS, 5000);
        	
        	//	0 means timeout
        	if(nfds == 0) {
@@ -159,7 +189,7 @@ void Server::start() {
 
        	for (int n = 0; n < nfds; ++n) {
        		//	New incoming UDP socket
-           	if (events[n].data.fd == listen_sock) {
+           	if (events[n].data.fd == UDP_listen_sock) {
                	/*setNonblocking(fd);
                	ev.events = EPOLLIN | EPOLLET;
                	ev.data.fd = conn_sock;
@@ -167,7 +197,7 @@ void Server::start() {
                    	perror("epoll_ctl: conn_sock");
                    	exit(EXIT_FAILURE);
                	}*/
-               	UDPpacketHandler(events[n].data.fd);
+               	UDPPacketHandler(UDPHelper);
            	} else {
                	//	uh oh
                	std::cout << "Recieved an event from an unexpected socket. Exiting...\n";
@@ -176,5 +206,15 @@ void Server::start() {
        	}
    	}
    	//	We only have to worry about one socket with UDP
-   	close(listen_sock);
+   	if(UDP_listen_sock) {
+   		close(UDP_listen_sock);
+   		UDP_listen_sock = -1;
+   	}
+   	if(epollfd) {
+   		close(epollfd);
+   		epollfd = -1;
+   	}
+
 }
+
+
